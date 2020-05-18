@@ -1,9 +1,9 @@
 #关于
 ## 一、OSS配置
-###1. 购买阿里云OSS
+### 1. 购买阿里云OSS
 链接：https://www.aliyun.com/product/oss?spm=5176.10695662.1112155.2.5f0330bewWGCED&aly_as=zzUN02Vit
 
-###2. 进入OSS管理控制台
+### 2. 进入OSS管理控制台
 右侧创建 Access Key  
 链接：https://oss.console.aliyun.com/overview
 
@@ -12,7 +12,7 @@ AccessKey ID：
 Access Key Secret：  
 替换OSSConnection中的对应项
 
-###3.进入Bucket 列表，创建Bucket
+### 3.进入Bucket 列表，创建Bucket
 
 进入创建好的bucket，然后替换OSSConnection中的bucketName
 
