@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>上传示例</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-main">
+        <div class="layui-container" style="margin-top: 100px">
+            <div class="layui-row">
+                <div class="layui-col-xs8 layui-col-xs-offset2">
+                    <div class="layui-form">
+
+                        <div class="layui-form-item">
+                            <div class="layui-upload-drag layui-input-block" id="uploadDemo">
+                                <i class="layui-icon"></i>
+                                <p>点击上传，或将文件拖拽到此处</p>
+                                <div class="layui-hide" id="uploadDemoView">
+                                    <hr>
+                                    <div id="pre_show" style="max-width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button id="submit" class="layui-btn" lay-submit lay-filter="saveBtn"> 确认保存 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui.js" charset="utf-8"></script>
+<script src="jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script>
+
+    layui.use(['form', 'upload', 'table'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload;
+
+        var uploadInst = upload.render({
+            elem: '#uploadDemo'
+            ,accept: 'file'
+            ,auto: false
+            ,url: 'test/uploadFastDfs'
+            ,choose: function(obj){
+                obj.preview(function(index, file){
+                    layui.$('#uploadDemoView').removeClass('layui-hide').find('#pre_show').text(file.name);
+                });
+            }
+            ,done: function (res) {
+                layer.alert(res.msg);
+            }
+            ,error: function(res){
+                //请求异常回调
+                layer.msg(res.msg);
+            }
+        });
+
+        form.on('submit(saveBtn)', function (data) {
+            uploadInst.upload();
+        });
+    });
+</script>
+</body>
+</html>
