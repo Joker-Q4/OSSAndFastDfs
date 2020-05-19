@@ -63,8 +63,8 @@ public class TestController {
      * @return 结果
      * @throws IOException 读取文件异常
      */
-    @GetMapping("/testPool")
-    public Map<String, Object> testPool() throws IOException {
+    @GetMapping("/testUpload")
+    public Map<String, Object> testUpload() throws IOException {
         final int testSize = 50;
         final CyclicBarrier barrier = new CyclicBarrier(testSize);
         final List<String> list = new ArrayList<>();
