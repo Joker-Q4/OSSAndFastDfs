@@ -4,15 +4,23 @@ import com.fitsoft.config.FastDFSClient;
 import com.fitsoft.conn.OSSConnection;
 import com.fitsoft.entity.CommonFile;
 import com.fitsoft.utils.CommonResult;
-import com.fitsoft.utils.PropertyUtil;
+import org.apache.http.entity.ContentType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 @RestController
 @RequestMapping("/test")
@@ -20,7 +28,6 @@ public class TestController {
 
     @Resource
     FastDFSClient fastDFSClient;
-
 
     @PostMapping("/upload")
     public Map<String, Object> upload(
@@ -46,6 +53,49 @@ public class TestController {
             System.out.println("------------------------------------------------------------");
             return CommonResult.toResult(0, url, 0, null);
         } catch (IOException e) {
+            e.printStackTrace();
+            return CommonResult.toResult(1, e.getMessage(), 0 , null);
+        }
+    }
+
+    /**
+     * 测试上传50个22M左右的apk，需要10秒钟
+     * @return 结果
+     * @throws IOException 读取文件异常
+     */
+    @GetMapping("/testPool")
+    public Map<String, Object> testPool() throws IOException {
+        final int testSize = 50;
+        final CyclicBarrier barrier = new CyclicBarrier(testSize);
+        final List<String> list = new ArrayList<>();
+        final List<MultipartFile> files = new ArrayList<>();
+        for(int i=1; i<=testSize; i++){
+            File apkFile = new File("C:/test/test/小丑影视 v1.6.2 - 副本 ("+i+").apk");
+            FileInputStream fileInputStream = new FileInputStream(apkFile);
+            files.add(new MockMultipartFile(apkFile.getName(), apkFile.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream));
+            fileInputStream.close();
+        }
+        try {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            System.out.println("==========================================================");
+            System.out.println("开始上传时间：           " + df.format(new Date()));
+            System.out.println("==========================================================");
+            for (MultipartFile file: files) {
+                String url = fastDFSClient.uploadFile(file, true);
+                list.add(url);
+                System.out.println("------------------------------------------------------------");
+                System.out.println("已上传的文件个数为:  "+list.size()+"      上传的文件路径为：   " + url);
+                System.out.println("------------------------------------------------------------");
+            }
+            if(list.size() != files.size()){
+                barrier.await();
+            }
+            System.out.println("==========================================================");
+            System.out.println("结束上传时间：           " + df.format(new Date()));
+            System.out.println("==========================================================");
+            return CommonResult.toResult(0, "成功", list.size(), list);
+        } catch (InterruptedException | BrokenBarrierException | IOException e) {
             e.printStackTrace();
             return CommonResult.toResult(1, e.getMessage(), 0 , null);
         }
